@@ -30,6 +30,12 @@ exporters:
   otlphttp/loki:
     endpoint: http://loki:3100/otlp
 
+  # Lutum addition: traces (one waterfall per session) go to Jaeger
+  otlp/jaeger:
+    endpoint: jaeger:4317
+    tls:
+      insecure: true
+
 service:
   pipelines:
     metrics:
@@ -40,6 +46,10 @@ service:
       receivers: [otlp]
       processors: [memory_limiter, batch]
       exporters: [otlphttp/loki]
+    traces:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [otlp/jaeger]
       
   extensions: []
   

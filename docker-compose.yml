@@ -12,6 +12,14 @@ services:
     depends_on:
       - prometheus
       - loki
+      - jaeger
+
+  # Jaeger: the trace store and its UI, one waterfall per session with every model call and tool call (Lutum addition)
+  jaeger:
+    image: jaegertracing/jaeger:latest
+    container_name: jaeger
+    ports:
+      - "16686:16686"   # the Jaeger UI; the Collector reaches its OTLP port inside the network
 
   # Loki: the log store, so Grafana can show events such as tool calls per session (Lutum addition)
   loki:

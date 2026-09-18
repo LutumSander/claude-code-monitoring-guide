@@ -1,0 +1,9 @@
+# Lutum addition: the trace store, so Grafana's Explore shows the same waterfalls as the Jaeger UI.
+apiVersion: 1
+datasources:
+  - name: Jaeger
+    type: jaeger
+    uid: jaeger
+    access: proxy
+    url: http://jaeger:16686
+    editable: true
