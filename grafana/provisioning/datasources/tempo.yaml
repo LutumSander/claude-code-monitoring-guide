@@ -1,0 +1,9 @@
+# Lutum addition: the trace store. Explore, then Tempo, shows one waterfall per session.
+apiVersion: 1
+datasources:
+  - name: Tempo
+    type: tempo
+    uid: tempo
+    access: proxy
+    url: http://tempo:3200
+    editable: true

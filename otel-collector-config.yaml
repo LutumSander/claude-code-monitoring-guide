@@ -30,9 +30,9 @@ exporters:
   otlphttp/loki:
     endpoint: http://loki:3100/otlp
 
-  # Lutum addition: traces (one waterfall per session) go to Jaeger
-  otlp/jaeger:
-    endpoint: jaeger:4317
+  # Lutum addition: traces (one waterfall per session) go to Tempo, and Grafana shows them
+  otlp/tempo:
+    endpoint: tempo:4317
     tls:
       insecure: true
 
@@ -49,7 +49,7 @@ service:
     traces:
       receivers: [otlp]
       processors: [memory_limiter, batch]
-      exporters: [otlp/jaeger]
+      exporters: [otlp/tempo]
       
   extensions: []
   

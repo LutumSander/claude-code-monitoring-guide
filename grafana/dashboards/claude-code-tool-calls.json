@@ -71,8 +71,16 @@
       "targets": [{"refId": "A", "legendFormat": "{{tool_name}}", "expr": "sum by (tool_name)(count_over_time({service_name=\"claude-code\"} | event_name=\"tool_result\" [$__interval]))"}]
     },
     {
+      "id": 9, "type": "table", "title": "Sessions as traces. Click a trace ID for the waterfall: every model call and tool call, in order, with timing",
+      "gridPos": {"x": 0, "y": 23, "w": 24, "h": 9},
+      "datasource": {"type": "tempo", "uid": "tempo"},
+      "fieldConfig": {"defaults": {}, "overrides": []},
+      "options": {"sortBy": [{"displayName": "Start time", "desc": true}]},
+      "targets": [{"refId": "A", "datasource": {"type": "tempo", "uid": "tempo"}, "queryType": "traceql", "query": "{ resource.service.name = \"claude-code\" }", "limit": 20, "tableType": "traces"}]
+    },
+    {
       "id": 8, "type": "logs", "title": "Every tool call: session, tool, duration, result",
-      "gridPos": {"x": 0, "y": 23, "w": 24, "h": 14},
+      "gridPos": {"x": 0, "y": 32, "w": 24, "h": 14},
       "datasource": {"type": "loki", "uid": "loki"},
       "options": {"showTime": true, "wrapLogMessage": true, "sortOrder": "Descending", "enableLogDetails": true, "dedupStrategy": "none"},
       "targets": [{"refId": "A", "expr": "{service_name=\"claude-code\"} | event_name=\"tool_result\" | line_format \"{{.session_id}}  {{.tool_name}}  {{.duration_ms}} ms  ok={{.success}}  {{.tool_input}}\""}]

@@ -12,14 +12,18 @@ services:
     depends_on:
       - prometheus
       - loki
-      - jaeger
+      - tempo
 
-  # Jaeger: the trace store and its UI, one waterfall per session with every model call and tool call (Lutum addition)
-  jaeger:
-    image: jaegertracing/jaeger:latest
-    container_name: jaeger
+  # Tempo: the trace store, one waterfall per session with every model call and tool call, shown in Grafana (Lutum addition)
+  tempo:
+    image: grafana/tempo:latest
+    container_name: tempo
+    command: ["-config.file=/etc/tempo.yaml"]
     ports:
-      - "16686:16686"   # the Jaeger UI; the Collector reaches its OTLP port inside the network
+      - "3200:3200"   # the Tempo API, for checks; the Collector reaches its OTLP port inside the network
+    volumes:
+      - ./tempo.yaml:/etc/tempo.yaml
+      - tempo_data:/var/tempo
 
   # Loki: the log store, so Grafana can show events such as tool calls per session (Lutum addition)
   loki:
@@ -66,3 +70,4 @@ volumes:
   prometheus_data:
   grafana_data:
   loki_data:
+  tempo_data:

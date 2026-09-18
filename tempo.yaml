@@ -1,0 +1,23 @@
+# Tempo 3, the trace store (Lutum addition). One process, local disk, no cloud. Tempo 3 rejects the old ingester and compactor keys.
+# The Collector sends traces to port 4317 inside the Docker network. Grafana reads them on port 3200.
+server:
+  http_listen_port: 3200
+
+distributor:
+  receivers:
+    otlp:
+      protocols:
+        grpc:
+          endpoint: "0.0.0.0:4317"
+        http:
+          endpoint: "0.0.0.0:4318"
+
+
+
+storage:
+  trace:
+    backend: local
+    wal:
+      path: /var/tempo/wal
+    local:
+      path: /var/tempo/blocks
