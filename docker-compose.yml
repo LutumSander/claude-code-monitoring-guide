@@ -11,6 +11,16 @@ services:
       - "8889:8889"   # Prometheus metrics
     depends_on:
       - prometheus
+      - loki
+
+  # Loki: the log store, so Grafana can show events such as tool calls per session (Lutum addition)
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - loki_data:/loki
 
   # Prometheus
   prometheus:
@@ -47,3 +57,4 @@ services:
 volumes:
   prometheus_data:
   grafana_data:
+  loki_data:

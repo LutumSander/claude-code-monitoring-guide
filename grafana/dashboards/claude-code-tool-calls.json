@@ -1,0 +1,81 @@
+{
+  "id": null,
+  "uid": "claude-code-tool-calls",
+  "title": "Claude Code - Tool calls",
+  "tags": ["claude-code"],
+  "editable": true,
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "1m",
+  "time": {"from": "now-7d", "to": "now"},
+  "timezone": "browser",
+  "templating": {"list": []},
+  "annotations": {"list": []},
+  "panels": [
+    {
+      "id": 1, "type": "stat", "title": "Tool calls",
+      "gridPos": {"x": 0, "y": 0, "w": 6, "h": 5},
+      "datasource": {"type": "loki", "uid": "loki"},
+      "fieldConfig": {"defaults": {"unit": "short", "decimals": 0}, "overrides": []},
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "colorMode": "none", "graphMode": "none", "textMode": "value"},
+      "targets": [{"refId": "A", "queryType": "instant", "expr": "sum(count_over_time({service_name=\"claude-code\"} | event_name=\"tool_result\" [$__range]))"}]
+    },
+    {
+      "id": 2, "type": "stat", "title": "Failed tool calls",
+      "gridPos": {"x": 6, "y": 0, "w": 6, "h": 5},
+      "datasource": {"type": "loki", "uid": "loki"},
+      "fieldConfig": {"defaults": {"unit": "short", "decimals": 0}, "overrides": []},
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "colorMode": "none", "graphMode": "none", "textMode": "value"},
+      "targets": [{"refId": "A", "queryType": "instant", "expr": "sum(count_over_time({service_name=\"claude-code\"} | event_name=\"tool_result\" | success=\"false\" [$__range]))"}]
+    },
+    {
+      "id": 3, "type": "stat", "title": "Refused by a hook or a rule",
+      "gridPos": {"x": 12, "y": 0, "w": 6, "h": 5},
+      "datasource": {"type": "loki", "uid": "loki"},
+      "fieldConfig": {"defaults": {"unit": "short", "decimals": 0}, "overrides": []},
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "colorMode": "none", "graphMode": "none", "textMode": "value"},
+      "targets": [{"refId": "A", "queryType": "instant", "expr": "sum(count_over_time({service_name=\"claude-code\"} | event_name=\"tool_decision\" | decision=\"reject\" [$__range]))"}]
+    },
+    {
+      "id": 4, "type": "stat", "title": "Sessions with tool calls",
+      "gridPos": {"x": 18, "y": 0, "w": 6, "h": 5},
+      "datasource": {"type": "loki", "uid": "loki"},
+      "fieldConfig": {"defaults": {"unit": "short", "decimals": 0}, "overrides": []},
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "colorMode": "none", "graphMode": "none", "textMode": "value"},
+      "targets": [{"refId": "A", "queryType": "instant", "expr": "count(sum by (session_id)(count_over_time({service_name=\"claude-code\"} | event_name=\"tool_result\" [$__range])))"}]
+    },
+    {
+      "id": 5, "type": "table", "title": "Calls by tool",
+      "gridPos": {"x": 0, "y": 5, "w": 8, "h": 10},
+      "datasource": {"type": "loki", "uid": "loki"},
+      "fieldConfig": {"defaults": {"unit": "short", "decimals": 0}, "overrides": []},
+      "options": {"sortBy": [{"displayName": "Value #A", "desc": true}]},
+      "transformations": [{"id": "organize", "options": {"excludeByName": {"Time": true}}}],
+      "targets": [{"refId": "A", "queryType": "instant", "format": "table", "expr": "sum by (tool_name)(count_over_time({service_name=\"claude-code\"} | event_name=\"tool_result\" [$__range]))"}]
+    },
+    {
+      "id": 6, "type": "table", "title": "Calls per session, by tool",
+      "gridPos": {"x": 8, "y": 5, "w": 16, "h": 10},
+      "datasource": {"type": "loki", "uid": "loki"},
+      "fieldConfig": {"defaults": {"unit": "short", "decimals": 0}, "overrides": []},
+      "options": {"sortBy": [{"displayName": "Value #A", "desc": true}]},
+      "transformations": [{"id": "organize", "options": {"excludeByName": {"Time": true}}}],
+      "targets": [{"refId": "A", "queryType": "instant", "format": "table", "expr": "sum by (session_id, tool_name)(count_over_time({service_name=\"claude-code\"} | event_name=\"tool_result\" [$__range]))"}]
+    },
+    {
+      "id": 7, "type": "timeseries", "title": "Tool calls over time, by tool",
+      "gridPos": {"x": 0, "y": 15, "w": 24, "h": 8},
+      "datasource": {"type": "loki", "uid": "loki"},
+      "fieldConfig": {"defaults": {"unit": "short", "custom": {"drawStyle": "bars", "fillOpacity": 60}}, "overrides": []},
+      "options": {"legend": {"displayMode": "list", "placement": "bottom"}, "tooltip": {"mode": "multi"}},
+      "targets": [{"refId": "A", "legendFormat": "{{tool_name}}", "expr": "sum by (tool_name)(count_over_time({service_name=\"claude-code\"} | event_name=\"tool_result\" [$__interval]))"}]
+    },
+    {
+      "id": 8, "type": "logs", "title": "Every tool call: session, tool, duration, result",
+      "gridPos": {"x": 0, "y": 23, "w": 24, "h": 14},
+      "datasource": {"type": "loki", "uid": "loki"},
+      "options": {"showTime": true, "wrapLogMessage": true, "sortOrder": "Descending", "enableLogDetails": true, "dedupStrategy": "none"},
+      "targets": [{"refId": "A", "expr": "{service_name=\"claude-code\"} | event_name=\"tool_result\" | line_format \"{{.session_id}}  {{.tool_name}}  {{.duration_ms}} ms  ok={{.success}}  {{.tool_input}}\""}]
+    }
+  ]
+}

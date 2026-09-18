@@ -26,12 +26,20 @@ exporters:
     sampling_initial: 5
     sampling_thereafter: 200
 
+  # Lutum addition: log events (tool calls, decisions, hooks) go to Loki
+  otlphttp/loki:
+    endpoint: http://loki:3100/otlp
+
 service:
   pipelines:
     metrics:
       receivers: [otlp]
       processors: [memory_limiter, batch]
       exporters: [prometheus, debug]
+    logs:
+      receivers: [otlp]
+      processors: [memory_limiter, batch]
+      exporters: [otlphttp/loki]
       
   extensions: []
   
