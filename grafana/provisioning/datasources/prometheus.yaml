@@ -1,0 +1,11 @@
+# The data source Anthropic's monitoring guide does not ship. Its dashboard references this uid.
+# Copy this file into the clone's grafana/provisioning/datasources/ folder. Grafana reads it at start-up.
+apiVersion: 1
+datasources:
+  - name: Prometheus
+    type: prometheus
+    uid: PBFA97CFB590B2093
+    access: proxy
+    url: http://prometheus:9090
+    isDefault: true
+    editable: true

@@ -1,0 +1,92 @@
+{
+  "id": null,
+  "uid": "claude-code-sessions",
+  "title": "Claude Code - Sessions",
+  "tags": ["claude-code"],
+  "editable": true,
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "1m",
+  "time": {"from": "now-7d", "to": "now"},
+  "timezone": "browser",
+  "templating": {"list": []},
+  "annotations": {"list": []},
+  "panels": [
+    {
+      "id": 1, "type": "stat", "title": "Total cost (API prices)",
+      "gridPos": {"x": 0, "y": 0, "w": 6, "h": 5},
+      "datasource": {"type": "prometheus", "uid": "PBFA97CFB590B2093"},
+      "fieldConfig": {"defaults": {"unit": "currencyUSD", "decimals": 2}, "overrides": []},
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "colorMode": "none", "graphMode": "none", "textMode": "value"},
+      "targets": [{"refId": "A", "instant": true, "expr": "sum(max_over_time(claude_code_cost_usage_USD_total[$__range]))"}]
+    },
+    {
+      "id": 2, "type": "stat", "title": "Sessions",
+      "gridPos": {"x": 6, "y": 0, "w": 6, "h": 5},
+      "datasource": {"type": "prometheus", "uid": "PBFA97CFB590B2093"},
+      "fieldConfig": {"defaults": {"unit": "short", "decimals": 0}, "overrides": []},
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "colorMode": "none", "graphMode": "none", "textMode": "value"},
+      "targets": [{"refId": "A", "instant": true, "expr": "count(count by (session_id)(max_over_time(claude_code_cost_usage_USD_total[$__range])))"}]
+    },
+    {
+      "id": 3, "type": "stat", "title": "Tokens, cache included",
+      "gridPos": {"x": 12, "y": 0, "w": 6, "h": 5},
+      "datasource": {"type": "prometheus", "uid": "PBFA97CFB590B2093"},
+      "fieldConfig": {"defaults": {"unit": "short", "decimals": 1}, "overrides": []},
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "colorMode": "none", "graphMode": "none", "textMode": "value"},
+      "targets": [{"refId": "A", "instant": true, "expr": "sum(max_over_time(claude_code_token_usage_tokens_total[$__range]))"}]
+    },
+    {
+      "id": 4, "type": "stat", "title": "Active time",
+      "gridPos": {"x": 18, "y": 0, "w": 6, "h": 5},
+      "datasource": {"type": "prometheus", "uid": "PBFA97CFB590B2093"},
+      "fieldConfig": {"defaults": {"unit": "s", "decimals": 0}, "overrides": []},
+      "options": {"reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "colorMode": "none", "graphMode": "none", "textMode": "value"},
+      "targets": [{"refId": "A", "instant": true, "expr": "sum(max_over_time(claude_code_active_time_seconds_total[$__range]))"}]
+    },
+    {
+      "id": 5, "type": "table", "title": "Cost by model",
+      "gridPos": {"x": 0, "y": 5, "w": 8, "h": 9},
+      "datasource": {"type": "prometheus", "uid": "PBFA97CFB590B2093"},
+      "fieldConfig": {"defaults": {"unit": "currencyUSD", "decimals": 3}, "overrides": []},
+      "options": {"sortBy": [{"displayName": "Value", "desc": true}]},
+      "transformations": [{"id": "organize", "options": {"excludeByName": {"Time": true}}}],
+      "targets": [{"refId": "A", "instant": true, "format": "table", "expr": "sum by (model)(max_over_time(claude_code_cost_usage_USD_total[$__range]))"}]
+    },
+    {
+      "id": 6, "type": "table", "title": "Cost by query source (main, subagents, auxiliary)",
+      "gridPos": {"x": 8, "y": 5, "w": 8, "h": 9},
+      "datasource": {"type": "prometheus", "uid": "PBFA97CFB590B2093"},
+      "fieldConfig": {"defaults": {"unit": "currencyUSD", "decimals": 3}, "overrides": []},
+      "options": {"sortBy": [{"displayName": "Value", "desc": true}]},
+      "transformations": [{"id": "organize", "options": {"excludeByName": {"Time": true}}}],
+      "targets": [{"refId": "A", "instant": true, "format": "table", "expr": "sum by (query_source)(max_over_time(claude_code_cost_usage_USD_total[$__range]))"}]
+    },
+    {
+      "id": 7, "type": "table", "title": "Tokens by type",
+      "gridPos": {"x": 16, "y": 5, "w": 8, "h": 9},
+      "datasource": {"type": "prometheus", "uid": "PBFA97CFB590B2093"},
+      "fieldConfig": {"defaults": {"unit": "short", "decimals": 0}, "overrides": []},
+      "options": {"sortBy": [{"displayName": "Value", "desc": true}]},
+      "transformations": [{"id": "organize", "options": {"excludeByName": {"Time": true}}}],
+      "targets": [{"refId": "A", "instant": true, "format": "table", "expr": "sum by (type)(max_over_time(claude_code_token_usage_tokens_total[$__range]))"}]
+    },
+    {
+      "id": 8, "type": "table", "title": "Most expensive sessions",
+      "gridPos": {"x": 0, "y": 14, "w": 12, "h": 9},
+      "datasource": {"type": "prometheus", "uid": "PBFA97CFB590B2093"},
+      "fieldConfig": {"defaults": {"unit": "currencyUSD", "decimals": 3}, "overrides": []},
+      "options": {"sortBy": [{"displayName": "Value", "desc": true}]},
+      "transformations": [{"id": "organize", "options": {"excludeByName": {"Time": true}}}],
+      "targets": [{"refId": "A", "instant": true, "format": "table", "expr": "topk(10, sum by (session_id, terminal_type)(max_over_time(claude_code_cost_usage_USD_total[$__range])))"}]
+    },
+    {
+      "id": 9, "type": "timeseries", "title": "Cost per session over time",
+      "gridPos": {"x": 12, "y": 14, "w": 12, "h": 9},
+      "datasource": {"type": "prometheus", "uid": "PBFA97CFB590B2093"},
+      "fieldConfig": {"defaults": {"unit": "currencyUSD", "decimals": 2, "custom": {"drawStyle": "points", "pointSize": 6}}, "overrides": []},
+      "options": {"legend": {"displayMode": "hidden"}, "tooltip": {"mode": "single"}},
+      "targets": [{"refId": "A", "legendFormat": "{{session_id}}", "interval": "5m", "expr": "sum by (session_id)(max_over_time(claude_code_cost_usage_USD_total[$__interval]))"}]
+    }
+  ]
+}
